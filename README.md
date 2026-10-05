@@ -79,3 +79,19 @@ analytics, no third-party servers.
   (captures the encounter note's printable PDF and shows Place of Service).
   This is the recommended daily-driver build: load it unpacked in
   `edge://extensions` or `chrome://extensions`.
+
+## Completing a fresh clone (binary files)
+
+The automated push can't carry binary files, so these 8 are pushed as
+placeholders / omitted — restore them from `castify-v1.1.4-pos.zip`
+(everything is inside it):
+
+- `extension/icons/icon16.png`, `icon48.png`, `icon128.png`
+- `v114-pos/castify-v1.1.4/icons/icon16.png`, `icon48.png`, `icon128.png`
+- `extension/lib/xlsx.full.min.js` — SheetJS, needed for Excel export
+  (or download https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js)
+- `v114-pos/castify-v1.1.4/lib/xlsx.full.min.js` — same file, second copy
+
+How: on github.com open the target folder → **Add file** → **Upload files** →
+drag the files in → **Commit changes**. Same-name uploads overwrite the
+placeholders.

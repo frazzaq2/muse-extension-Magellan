@@ -1,0 +1,15 @@
+services:
+  castify-server:
+    build: .
+    container_name: castify-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      # SQLite database file persists here on the host (./data/castify.db)
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      PORT: "3001"
+      DB_PATH: /app/data/castify.db

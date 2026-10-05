@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Castify — Billing Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login-view" class="center-wrap">
+  <form id="login-form" class="card login-card">
+    <h1>Castify</h1>
+    <p class="sub">Billing dashboard</p>
+    <label>Email <input id="login-email" type="email" autocomplete="username" required></label>
+    <label>Password <input id="login-pass" type="password" autocomplete="current-password" required></label>
+    <button type="submit">Sign in</button>
+    <p id="login-error" class="error"></p>
+  </form>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app-view" class="hidden">
+  <header class="topbar">
+    <div class="brand">Castify <span class="sub">dashboard</span></div>
+    <nav>
+      <button id="nav-dash" class="navbtn active">Dashboard</button>
+      <button id="nav-users" class="navbtn hidden">Users</button>
+    </nav>
+    <div class="top-actions">
+      <span id="whoami" class="whoami"></span>
+      <button id="btn-token" title="Copy the API token to paste into the extension's Options page">Copy API token</button>
+      <button id="btn-logout">Logout</button>
+    </div>
+  </header>
+
+  <!-- Dashboard tab -->
+  <main id="tab-dash">
+    <section class="cards" id="stat-cards">
+      <div class="card stat"><div class="stat-label">Billed claims</div><div class="stat-num" id="s-billed-n">–</div></div>
+      <div class="card stat"><div class="stat-label">Billed $</div><div class="stat-num" id="s-billed-amt">–</div></div>
+      <div class="card stat"><div class="stat-label">Unbilled claims</div><div class="stat-num" id="s-unbilled-n">–</div></div>
+      <div class="card stat"><div class="stat-label">Unbilled $</div><div class="stat-num" id="s-unbilled-amt">–</div></div>
+    </section>
+
+    <section class="card filters">
+      <select id="f-days">
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+      <select id="f-status">
+        <option value="">All statuses</option>
+        <option value="billed">Billed</option>
+        <option value="unbilled">Unbilled</option>
+        <option value="ready">Ready</option>
+      </select>
+      <select id="f-payer"><option value="">All payers</option></select>
+      <select id="f-center"><option value="">All centers</option></select>
+      <input id="f-q" type="search" placeholder="Search patient / MRN / member ID / TCN">
+      <button id="f-apply">Apply</button>
+    </section>
+
+    <section class="breakdowns">
+      <div class="card"><h3>By center</h3><table class="mini" id="t-center"></table></div>
+      <div class="card"><h3>By payer</h3><table class="mini" id="t-payer"></table></div>
+      <div class="card"><h3>By CPT</h3><table class="mini" id="t-cpt"></table></div>
+    </section>
+
+    <section class="card">
+      <div class="table-head">
+        <h3>Claims</h3>
+        <div class="pager">
+          <button id="pg-prev">‹ Prev</button>
+          <span id="pg-info"></span>
+          <button id="pg-next">Next ›</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th>Patient</th><th>MRN</th><th>Payer</th><th>Center</th><th>DOS</th>
+            <th>CPT</th><th>Units</th><th>Charges</th><th>Status</th><th>TCN / Reason</th>
+          </tr></thead>
+          <tbody id="claims-body"><tr><td colspan="10" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Users tab (admin only) -->
+  <main id="tab-users" class="hidden">
+    <section class="card">
+      <h3>Create user</h3>
+      <form id="user-form" class="user-form">
+        <input id="u-name" placeholder="Name" required>
+        <input id="u-email" type="email" placeholder="Email" required>
+        <input id="u-pass" type="password" placeholder="Password (min 8 chars)" minlength="8" required>
+        <select id="u-role"><option value="user">user</option><option value="admin">admin</option></select>
+        <button type="submit">Create</button>
+      </form>
+      <p id="user-error" class="error"></p>
+    </section>
+    <section class="card">
+      <h3>Users</h3>
+      <table class="data">
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Claims synced</th><th>Created</th><th></th></tr></thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

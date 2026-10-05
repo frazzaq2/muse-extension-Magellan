@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Castify</title>
+<link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span><strong>Castify</strong><span class="ver">v1.1.10</span></div>
+  <div class="top-actions">
+    <button id="btn-scan" class="btn primary sm" title="Scrape Ready-to-Bill from the Magellan tab">Scan Magellan</button>
+    <button id="btn-options" class="btn sm" title="Settings">⚙</button>
+  </div>
+</header>
+<div id="conn" class="conn"></div>
+
+<nav class="tabs">
+  <button data-tab="report" class="active">Report</button>
+  <button data-tab="submit">Submit</button>
+  <button data-tab="unbilled">Unbilled <span id="badge-unbilled" class="badge hidden">0</span></button>
+  <button data-tab="billed">Billed <span id="badge-billed" class="badge ok hidden">0</span></button>
+  <button data-tab="ai">AI</button>
+  <button data-tab="export">Export</button>
+</nav>
+
+<main>
+  <!-- STEP 1: REPORT -->
+  <section id="tab-report" class="tab active">
+    <div class="filters">
+      <input id="f-search" class="inp" placeholder="Search patient / MRN / member ID…">
+      <select id="f-payer" class="inp"><option value="">All payers</option></select>
+      <select id="f-cpt" class="inp"><option value="">All CPT</option></select>
+      <details class="centerpick"><summary id="f-center-label">All centers</summary><div id="f-centers" class="centerlist"></div></details>
+      <label class="chk"><input type="checkbox" id="f-ready-only" checked> Ready only</label>
+      <label class="chk" title="Walk through every page of the Magellan table (Next → …) so nothing is missed"><input type="checkbox" id="scan-all-pages"> All pages</label>
+    </div>
+    <div id="stats" class="stats"></div>
+    <details id="breakdown-box" class="breakdown"><summary>Breakdown by clinic / provider / payer</summary><div id="breakdown"></div></details>
+    <div class="tablewrap"><table id="claims-table">
+      <thead><tr>
+        <th><input type="checkbox" id="sel-all"></th><th>Patient</th><th>MRN</th><th>Payer</th>
+        <th>Member ID</th><th>Center</th><th>DOS</th><th>CPT</th><th>Units</th><th>Charges</th><th>Status</th>
+      </tr></thead>
+      <tbody id="claims-body"><tr><td colspan="11" class="empty">No data yet — click “Scan Magellan” with the Ready-to-Bill page open.</td></tr></tbody>
+    </table></div>
+    <div class="rowbar">
+      <span id="sel-count">0 selected</span>
+      <button id="btn-ai-review" class="btn sm">AI pre-flight review</button>
+    </div>
+    <div id="ai-review-out" class="aiout hidden"></div>
+  </section>
+
+  <!-- STEPS 2+3: SUBMIT -->
+  <section id="tab-submit" class="tab">
+    <div class="panel">
+      <label class="lbl">Insurance to submit
+        <select id="q-payer" class="inp"></select>
+      </label>
+      <label class="lbl">Mode
+        <select id="q-mode" class="inp">
+          <option value="review">Review — I approve each claim</option>
+          <option value="auto">Auto — submit after eligibility, no approval</option>
+        </select>
+      </label>
+      <div class="btnrow">
+        <button id="btn-start" class="btn primary">▶ Start submission</button>
+        <button id="btn-stop" class="btn danger" disabled>■ Stop</button>
+      </div>
+      <p class="hint">Runs one by one: authorization check → eligibility → fill claim → submit → capture TCN → write back to EHR.</p>
+    </div>
+    <div id="queue-box" class="panel hidden">
+      <div class="qhead"><strong id="q-status">Idle</strong><span id="q-progress"></span></div>
+      <div class="qbar"><div id="q-barfill"></div></div>
+      <div id="q-current" class="qcurrent"></div>
+      <div id="review-box" class="hidden">
+        <p><strong>Review this claim on Availity, then:</strong></p>
+        <div class="btnrow">
+          <button id="btn-approve" class="btn primary">Submit claim</button>
+          <button id="btn-skip" class="btn">Skip (mark unbilled)</button>
+        </div>
+      </div>
+      <div id="q-log" class="qlog"></div>
+    </div>
+  </section>
+
+  <!-- UNBILLED -->
+  <section id="tab-unbilled" class="tab">
+    <div class="tablewrap"><table>
+      <thead><tr><th>Patient</th><th>MRN</th><th>Payer</th><th>DOS</th><th>CPT</th><th>Step</th><th>Reason</th></tr></thead>
+      <tbody id="unbilled-body"><tr><td colspan="7" class="empty">No unbilled claims.</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <!-- BILLED -->
+  <section id="tab-billed" class="tab">
+    <div class="tablewrap"><table>
+      <thead><tr><th>Patient</th><th>MRN</th><th>Payer</th><th>DOS</th><th>CPT</th><th>$</th><th>TCN</th><th>At</th></tr></thead>
+      <tbody id="billed-body"><tr><td colspan="8" class="empty">No billed claims yet.</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <!-- AI -->
+  <section id="tab-ai" class="tab">
+    <div class="panel">
+      <p class="hint">The AI uses your <strong>Skill file</strong> (Options → AI Skill) to validate claims and suggest workflow improvements.</p>
+      <div class="btnrow">
+        <button id="btn-ai-suggest" class="btn sm">Get workflow suggestions</button>
+        <button id="btn-ai-skill" class="btn sm">Open Skill file</button>
+      </div>
+      <textarea id="ai-context" class="inp" rows="3" placeholder="Optional: paste an Availity error, a tricky scenario, or a log excerpt for the AI to triage…"></textarea>
+      <button id="btn-ai-ask" class="btn primary sm">Ask AI</button>
+      <div id="ai-out" class="aiout hidden"></div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section id="tab-export" class="tab">
+    <div class="panel">
+      <p class="hint">Downloads a multi-sheet Excel workbook: Summary, Billed, Unbilled, stats by Center / Payer / CPT / Provider, and the event log.</p>
+      <label class="chk"><input type="checkbox" id="exp-include-log" checked> Include event log sheet</label>
+      <div class="btnrow"><button id="btn-export" class="btn primary">⬇ Export Excel report</button></div>
+      <div class="btnrow"><button id="btn-clear" class="btn danger sm">Clear all local data</button></div>
+    </div>
+  </section>
+</main>
+
+<div id="patient-modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><strong id="pm-title">Patient</strong><button id="pm-close" class="btn sm">✕</button></div>
+    <div id="pm-body"></div>
+  </div>
+</div>
+<script src="lib/xlsx.full.min.js"></script>
+<script src="sidepanel.js"></script>
+</body>
+</html>

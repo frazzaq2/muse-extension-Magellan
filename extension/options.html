@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Castify Settings</title>
+<style>
+body{background:#0f1420;color:#e8edf7;font:13px/1.5 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;max-width:860px;margin:0 auto;padding:24px}
+h1{font-size:20px}h2{font-size:15px;margin-top:28px;border-bottom:1px solid #263049;padding-bottom:6px}
+.card{background:#171e2e;border:1px solid #263049;border-radius:10px;padding:16px;margin:12px 0}
+label{display:block;font-size:12px;color:#9aa7c2;margin:10px 0 4px}
+input,select,textarea{width:100%;background:#0b0f1a;border:1px solid #263049;color:#e8edf7;border-radius:6px;padding:8px;font-size:12px;font-family:inherit}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+button{background:#2f7bff;border:0;color:#fff;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:14px}
+button.ghost{background:#232c44}
+.hint{font-size:11px;color:#9aa7c2}
+.addr{border:1px solid #263049;border-radius:8px;padding:10px;margin:8px 0}
+.addr h4{margin:0 0 6px;font-size:12px}
+.row4{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
+#status{margin-top:10px;font-size:12px;color:#22c07a}
+</style>
+</head>
+<body>
+<h1>Castify Settings</h1>
+
+<h2>Submission defaults</h2>
+<div class="card">
+  <div class="grid2">
+    <div><label>Mode</label><select id="s-mode"><option value="review">Review — I approve each claim</option><option value="auto">Auto — submit after eligibility</option></select></div>
+    <div><label>Your name (used in EHR notes)</label><input id="s-userName" placeholder="e.g. Fahad"></div>
+    <div><label>Organization</label><input id="s-organization"></div>
+    <div><label>Provider NPI</label><input id="s-providerNpi"></div>
+    <div><label>Payer (default)</label><input id="s-payer"></div>
+    <div><label>Place of Service</label><input id="s-pos"></div>
+  </div>
+  <label>EHR note template <span class="hint">{user}, {tcn}, {date} are replaced automatically</span></label>
+  <input id="s-noteTemplate">
+</div>
+
+<h2>Center addresses (service facility fallback)</h2>
+<div class="card"><div id="addrs"></div>
+<button id="add-center" class="ghost" type="button">+ Add center</button></div>
+
+<h2>AI assistant</h2>
+<div class="card">
+  <div class="grid2">
+    <div><label>Provider</label><select id="s-aiProvider"><option value="anthropic">Anthropic (Claude)</option><option value="openai">OpenAI (ChatGPT)</option></select></div>
+    <div><label>Model (blank = default)</label><input id="s-aiModel" placeholder="e.g. claude-haiku-4-5-20251001"></div>
+  </div>
+  <label>API key <span class="hint">stored only in this browser</span></label>
+  <input id="s-aiApiKey" type="password" autocomplete="off">
+</div>
+
+<h2>AI Skill file</h2>
+<div class="card">
+  <p class="hint">The instruction set the AI uses to validate claims and suggest improvements. Edit it as new scenarios appear — your notes here make the AI smarter over time.</p>
+  <textarea id="skill" rows="22"></textarea>
+  <button id="save-skill" class="ghost" type="button">Save Skill file</button>
+</div>
+
+<h2>Backend (VPS hosting, multi-user)</h2>
+<div class="card">
+  <div class="grid2">
+    <div><label>Backend URL</label><input id="s-backendUrl" placeholder="https://claims.example.com"></div>
+    <div><label>API token (from admin)</label><input id="s-backendToken" type="password" autocomplete="off"></div>
+  </div>
+  <button id="test-sync" class="ghost" type="button">Sync now</button>
+  <span id="sync-status" class="hint"></span>
+</div>
+
+<h2>Advanced: page URLs &amp; selectors</h2>
+<div class="card">
+  <div class="grid2">
+    <div><label>Availity Eligibility URL (optional direct link)</label><input id="s-eligUrl" placeholder="leave blank to navigate via menus"></div>
+    <div><label>Availity Start-a-Claim URL (optional direct link)</label><input id="s-startClaimUrl" placeholder="leave blank to navigate via menus"></div>
+  </div>
+  <p class="hint">If Availity changes its layout, selector overrides can be added here later — contact support with a screenshot of the broken step.</p>
+</div>
+
+<button id="save">Save settings</button>
+<div id="status"></div>
+
+<script src="options.js"></script>
+</body>
+</html>
